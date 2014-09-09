@@ -1,0 +1,76 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class dataG {
+
+	public static int MINVAL = -680;
+	public static int MAXVAL = 680;
+	public static long TUPINFILE = 1000000;
+	public static int FILENUM = 3;
+
+	public dataG() {
+
+	}
+	public read()
+	{
+		FileReader fr = new FileReader("2-gsensor.txt");
+		BufferedReader br = new BufferedReader(fr);
+		String line = "";
+		int tmp = 0, ini = 1, isnull = 0;
+		line = br.readLine();
+
+		while ((line = br.readLine()) != null) {
+	}
+
+	public static void main(String[] args) throws Exception {
+
+		int filenum = 1;
+		double tupnum = 0.0, tempst = 1299970801.0;
+		String wstr = "";
+
+		FileWriter fstream;
+		BufferedWriter out;
+
+		int val1 = 0, val2 = 0, val3 = 0;
+
+		while (filenum <= FILENUM) {
+			filenum++;
+			tupnum = 0.0;
+			
+			try {
+
+				fstream = new FileWriter(Integer.toString(filenum)
+						+ "-gsensor.txt", true);
+				out = new BufferedWriter(fstream);
+				wstr = "time,x,y,z\n";
+				out.write(wstr);
+				
+				while (tupnum <= TUPINFILE) {
+					wstr = Long.toString((long)tempst)+".0";
+					val1 = MINVAL
+							+ (int) (Math.random() * ((MAXVAL - MINVAL) + 1));
+					val2 = (int) (20 * Math.random());
+					val3 = (int) (200 * Math.random());
+					wstr = wstr + "," + Integer.toString(val1) + ","
+							+ Integer.toString(val2) + ","
+							+ Integer.toString(val3)+"\n";
+
+					tupnum++;
+					tempst++;
+					out.write(wstr);
+				}
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		return;
+	}
+
+}

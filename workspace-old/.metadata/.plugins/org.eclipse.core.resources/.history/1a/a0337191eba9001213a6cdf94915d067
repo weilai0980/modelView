@@ -1,0 +1,166 @@
+package basetool;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.QualifierFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueExcludeFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.util.Bytes;
+import java.util.Arrays;
+
+import org.apache.hadoop.hbase.filter.Filter;
+
+import org.apache.hadoop.hbase.filter.FilterList.Operator;
+
+public class filterHbase {
+
+	public Configuration config = HBaseConfiguration.create();
+	public int modord;
+
+	public filterHbase(int modorder) {
+		modorder = modord;
+
+	}
+
+	public void pointEval(double model[]) {
+		double tmp = 0.0;
+		for (int i = 0; i < modord + 1; ++i) {
+			tmp = model[i];
+		}
+		return;
+	}
+
+	public void pointQuery(String tablename, double val, String cf,
+			String qual[]) throws IOException {
+
+		double[] modinfor = new double[10];
+
+		HTable table = new HTable(config, tablename);
+
+		Scan s1 = new Scan();
+		s1.addColumn("attri".getBytes(), "st".getBytes());
+      	s1.addColumn("attri".getBytes(), "ed".getBytes());
+
+		// filterList.addFilter(new SingleColumnValueFilter(cf.getBytes(),
+		// qual[0]
+		// .getBytes(), CompareOp.LESS_OR_EQUAL, Bytes.toBytes(val)));
+		//
+		//
+//		Filter filter1 = new SingleColumnValueFilter(cf.getBytes(),
+//				qual[1].getBytes(), CompareOp.GREATER_OR_EQUAL,
+//				Bytes.toBytes(val));
+//
+//		FilterList filterList = new FilterList(
+//				FilterList.Operator.MUST_PASS_ALL, Arrays.asList(filter1));
+		// filterList.addFilter();
+		// //filterList.
+
+		// QualifierFilter filter1 = new
+		// QualifierFilter(CompareOp.LESS_OR_EQUAL,new
+		// BinaryComparator(“”.getBytes()));
+		//
+		
+		s1.setFilter(new
+				SingleColumnValueFilter("attri".getBytes(),"st".getBytes(),CompareOp.GREATER,Bytes.toBytes(val)));
+		
+		
+	//	s1.setFilter(filterList);
+		ResultScanner Res = table.getScanner(s1);
+		String col = "";
+		int cnt=0;
+		
+		for (Result rr = Res.next(); rr != null; rr = Res
+				.next()) {
+
+			cnt++;
+			
+			// ....unit test...............//
+			String lb = new String(rr.getValue("attri".getBytes(),
+					"st".getBytes()));
+			String rb = new String(rr.getValue("attri".getBytes(),
+					"ed".getBytes()));
+		//	System.out.print(lb + "," + rb + "\n");
+			// ............................//
+
+			for (int i = 0; i < modord + 1; ++i) {
+				col = "coef" + Integer.toString(i);
+				modinfor[i] = Double.parseDouble(new String(rr.getValue(
+						"model".getBytes(), "cof1".getBytes())));
+			}
+			pointEval(modinfor);
+
+//			for (KeyValue kv : rr.list()) {
+//				System.out.println("row : " + new String(kv.getRow()));
+//				//System.out.println("column : " + new String(kv.getColumn()));
+//				System.out.println("value : " + new String(kv.getValue()));
+//			}
+		}
+		System.out.printf("%d\n", cnt);
+	}
+
+	public void rangeEval(double model[], double l, double r) {
+
+		double tmp = 0.0;
+		double step = (r - l) / 10.0;
+		if (step > 0) {
+			for (double i = l; i <= r; i += step) {
+				tmp = model[0];
+			}
+		}
+		return;
+	}
+
+	public void rangeQuery(String tablename, double l, double r, String cf,
+			String qual[]) throws IOException {
+
+		double[] modinfor = new double[10];
+
+		HTable table = new HTable(config, tablename);
+		FilterList filterList = new FilterList();
+		Scan s1 = new Scan();
+
+		filterList.addFilter(new SingleColumnValueFilter(cf.getBytes(), qual[1]
+				.getBytes(), CompareOp.LESS_OR_EQUAL, Bytes.toBytes(l)));// left
+		filterList.addFilter(new SingleColumnValueFilter(cf.getBytes(), qual[0]
+				.getBytes(), CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(r)));// right
+
+		s1.setFilter(filterList);
+		ResultScanner ResultScannerFilterList = table.getScanner(s1);
+		String col = "";
+		for (Result rr = ResultScannerFilterList.next(); rr != null; rr = ResultScannerFilterList
+				.next()) {
+
+			// ....unit test...............//
+			String lb = new String(rr.getValue("attri".getBytes(),
+					"st".getBytes()));
+			String rb = new String(rr.getValue("attri".getBytes(),
+					"ed".getBytes()));
+
+			// ............................//
+
+			System.out.print(lb + "," + rb);
+
+			for (int i = 0; i < modord + 1; ++i) {
+				col = "coef" + Integer.toString(i);
+				modinfor[i] = Double.parseDouble(new String(rr.getValue(
+						"model".getBytes(), "cof1".getBytes())));
+			}
+			rangeEval(modinfor, l, r);
+
+			// for (KeyValue kv : rr.list()) {
+			// System.out.println("row : " + new String(kv.getRow()));
+			// System.out.println("column : " + new String(kv.getColumn()));
+			// System.out.println("value : " + new String(kv.getValue()));
+			// }
+		}
+	}
+}

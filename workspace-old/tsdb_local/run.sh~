@@ -1,0 +1,2 @@
+#!/bin/bash
+java -cp /home/guo/workspace/tsdb_local/bin:/home/guo/Downloads/hbase/*.jar:/home/guo/Downloads/hbase/lib/*.jar:/home/guo/Downloads/hbase/lib/hadoop-core-1.0.0.jar QueryPro
