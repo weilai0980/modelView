@@ -1,0 +1,38 @@
+<virtual-sensor name="kviSensorData" priority="10">
+  <processing-class>
+    <class-name>gsn.vsensor.ModellingVirtualSensor</class-name>
+    <init-params>
+        <param name="model">gsn.utils.models.kvi.kviSegManager</param> <!-- class names of the model to load, separated by , -->
+        <param name="model.0.tsid">"temp"</param>
+    </init-params>
+    <output-structure>  
+     
+        <field name="value" type="double" />     
+    </output-structure>
+  </processing-class>
+	<description>Not Specified, please edit the file
+		$INSTALL_PATH/virtual-sensors/memoryPlotVS.xml</description>
+	<life-cycle pool-size="10" />
+	<addressing>
+		<predicate key="geographical">Not Specified, please edit the file
+			$INSTALL_PATH/virtual-sensors/memoryPlotVS.xml</predicate>
+	</addressing>
+	<storage history-size="1" />
+	<streams>
+		<stream name="DATA">
+			<source alias="source1" storage-size="1" sampling-rate="1">
+				<address wrapper="csv">
+  <predicate key="file">/home/guo/xgsn/dataset.txt</predicate>
+  <predicate key="fields">timed,value</predicate>
+  <predicate key="formats">numeric,numeric</predicate>
+ <!-- <predicate key="bad-values">NaN,6999,-6999,null</predicate> -->
+  <predicate key="timezone">Etc/GMT-1</predicate>
+  <predicate key="sampling">3000</predicate> <!-- sever 1000 milliseconds; 1sec -->
+  <!-- <predicate key="check-point-directory">csv-check-points</predicate> -->
+</address>
+				<query>select * from wrapper</query>
+			</source>
+			<query>select * from source1</query>
+		</stream>
+	</streams>
+</virtual-sensor>
